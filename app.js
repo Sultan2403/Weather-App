@@ -10,26 +10,33 @@ const weatherIcons = {
 
 async function getWeather() {
   const userInput = document.getElementById("city-inp").value;
+  let messageTimeout;
+  clearTimeout(messageTimeout);
   if (!userInput || !isNaN(userInput)) {
     resultDisplay.textContent = `Please input a valid city name!`;
-    setTimeout(() => {
+    messageTimeout = setTimeout(() => {
       resultDisplay.textContent = "";
     }, 3000);
     return;
   }
   try {
+    resultDisplay.className = "";
     resultDisplay.textContent = `Please wait while we fetch the weather data for your location`;
     btn.disabled = true;
     const geoResponse = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${userInput}`
     );
-    resultDisplay.textContent = "Done fetching!";
+    resultDisplay.textContent = "Loading...";
     if (!geoResponse.ok) {
       throw new Error(
         `Failed to fetch location data, please make sure you input a valid city name`
       );
     }
     const geoData = await geoResponse.json();
+    if (!geoData.results || geoData.results.length === 0) {
+      resultDisplay.textContent = `City not found. Please check your spelling or try another name.`;
+      return;
+    }
     const latitude = geoData.results[0].latitude;
     const longitude = geoData.results[0].longitude;
     const currWeather = await fetch(
@@ -51,8 +58,11 @@ async function getWeather() {
     } else if ([71, 73, 75].includes(weatherCode)) {
       icons = weatherIcons.snow;
     }
+
     resultDisplay.innerHTML = `<div class="temperature">The temperature in ${userInput} is: ${dataToDisplay}°C</div>`;
     resultDisplay.innerHTML += `<img src="${icons}" alt="Weather Icon">`;
+
+    resultDisplay.className = "weather-animation weatherDisplay";
     btn.disabled = false;
   } catch (error) {
     resultDisplay.textContent = `Sorry an error occured, please try again later.`;
@@ -75,5 +85,6 @@ userInput.addEventListener("keydown", (pressed) => {
 const form = document.getElementById("form");
 
 form.addEventListener("submit", (action) => {
-  action.preventDefault();
+  action.preventDefault(); // stop page reload
+  getWeather();
 });
