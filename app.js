@@ -1,11 +1,11 @@
 const resultDisplay = document.getElementById("weatherDisplay");
 const btn = document.getElementById("btn");
 const weatherIcons = {
-  clear: "https://cdn-icons-png.flaticon/512/869/869869.png", // Sunny Icon
-  cloudy: "https://cdn-icons-png.flaticon/512/414/414927.png", // Cloudy Icon
-  rain: "https://cdn-icons-png.flaticon/512/1163/1163624.png", // Rain Icon
-  snow: "https://cdn-icons-png.flaticon/512/624/642102.png", // Snow Icon
-  default: "https://cdn-icons-png.flaticon/512/3313/3313998.png", // Default Icon
+  clear: "https://cdn-icons-png.flaticon.com/128/4814/4814268.png", // Sunny Icon
+  cloudy: "https://cdn-icons-png.flaticon.com/128/3313/3313983.png", // Cloudy Icon
+  rain: "https://cdn-icons-png.flaticon.com/128/2864/2864448.png", // Rain Icon
+  snow: "https://cdn-icons-png.flaticon.com/128/2315/2315309.png", // Snow Icon
+  default: "https://cdn-icons-png.flaticon.com/128/1163/1163661.png", // Default Icon
 };
 
 async function getWeather() {
@@ -19,6 +19,7 @@ async function getWeather() {
   }
   try {
     resultDisplay.textContent = `Please wait while we fetch the weather data for your location`;
+    btn.disabled = true;
     const geoResponse = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${userInput}`
     );
@@ -29,7 +30,6 @@ async function getWeather() {
       );
     }
     const geoData = await geoResponse.json();
-    console.table(geoData);
     const latitude = geoData.results[0].latitude;
     const longitude = geoData.results[0].longitude;
     const currWeather = await fetch(
@@ -40,9 +40,24 @@ async function getWeather() {
     }
     const weatherData = await currWeather.json();
     const dataToDisplay = weatherData.current_weather.temperature;
+    let icons = weatherIcons.default;
+    const weatherCode = weatherData.current_weather.weathercode;
+    if (weatherCode === 0) {
+      icons = weatherIcons.clear;
+    } else if ([1, 2, 3].includes(weatherCode)) {
+      icons = weatherIcons.cloudy;
+    } else if ([51, 52, 61, 62].includes(weatherCode)) {
+      icons = weatherIcons.rain;
+    } else if ([71, 73, 75].includes(weatherCode)) {
+      icons = weatherIcons.snow;
+    }
     resultDisplay.innerHTML = `<div class="temperature">The temperature in ${userInput} is: ${dataToDisplay}°C</div>`;
+    resultDisplay.innerHTML += `<img src="${icons}" alt="Weather Icon">`;
+    btn.disabled = false;
   } catch (error) {
     resultDisplay.textContent = `Sorry an error occured, please try again later.`;
+    btn.disabled = false;
+    console.error(error);
     setTimeout(() => {
       resultDisplay.textContent = "";
     }, 5000);
@@ -50,6 +65,15 @@ async function getWeather() {
   }
 }
 
+const userInput = document.getElementById("city-inp");
 btn.addEventListener("click", () => getWeather());
+userInput.addEventListener("keydown", (pressed) => {
+  if (pressed.key === "Enter") {
+    getWeather();
+  }
+});
+const form = document.getElementById("form");
 
-console.table(weatherIcons);
+form.addEventListener("submit", (action) => {
+  action.preventDefault();
+});
