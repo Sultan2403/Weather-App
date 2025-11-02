@@ -35,6 +35,7 @@ async function getWeather() {
     const geoData = await geoResponse.json();
     if (!geoData.results || geoData.results.length === 0) {
       resultDisplay.textContent = `City not found. Please check your spelling or try another name.`;
+      btn.disabled = false;
       return;
     }
     const latitude = geoData.results[0].latitude;
