@@ -123,6 +123,13 @@ img {
   font-weight: 500;
 }
 
+/* Components... */
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Animations */
 @keyframes floatIn {
   0% {

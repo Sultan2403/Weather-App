@@ -12,7 +12,7 @@ async function getWeather() {
   const userInput = document.getElementById("city-inp").value;
   let messageTimeout;
   clearTimeout(messageTimeout);
-  if (!userInput || !isNaN(userInput)) {
+  if (!userInput || !isNaN(userInput) || /\d/.test(userInput)) {
     resultDisplay.textContent = `Please input a valid city name!`;
     messageTimeout = setTimeout(() => {
       resultDisplay.textContent = "";
@@ -76,7 +76,9 @@ async function getWeather() {
 }
 
 const userInput = document.getElementById("city-inp");
-btn.addEventListener("click", () => getWeather());
+btn.addEventListener("click", () => {
+  getWeather();
+});
 userInput.addEventListener("keydown", (pressed) => {
   if (pressed.key === "Enter") {
     getWeather();
