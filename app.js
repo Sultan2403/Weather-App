@@ -28,6 +28,8 @@ async function getWeather() {
     );
     resultDisplay.textContent = "Loading...";
     if (!geoResponse.ok) {
+      resultDisplay.textContent =
+        "Failed to fetch location data, please make sure you input a valid city name";
       throw new Error(
         `Failed to fetch location data, please make sure you input a valid city name`
       );
